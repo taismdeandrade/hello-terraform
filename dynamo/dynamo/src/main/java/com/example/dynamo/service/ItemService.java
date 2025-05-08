@@ -65,4 +65,23 @@ public class ItemService {
             return ResponseEntity.internalServerError().body("Falha ao deletar o item: " + e.getMessage());
         }
     }
+
+    public ResponseEntity<Item> editarItem(String pKey, String sKey, ItemDto itemDto){
+
+        Item item = dynamoDbTemplate.load(Key.builder()
+                        .partitionValue(pKey)
+                        .sortValue(sKey)
+                        .build(), Item.class);
+
+        if (item == null){
+            return ResponseEntity.badRequest().build();
+        }
+
+        item.setNome(itemDto.nome());
+        item.setStatus(itemDto.status());
+
+        dynamoDbTemplate.save(item);
+
+        return ResponseEntity.ok().body(item);
+    }
 }

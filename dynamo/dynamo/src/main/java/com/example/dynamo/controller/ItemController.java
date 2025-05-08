@@ -29,4 +29,9 @@ public class ItemController {
         itemService.deletarItem(pKey, sKey);
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping
+    public ResponseEntity editarItem(@RequestParam(value = "pKey") String pKey, @RequestParam(value = "sKey") String sKey, @RequestBody ItemDto itemDto) {
+        return itemService.editarItem(pKey, sKey, itemDto);
+    }
 }

@@ -1,4 +1,4 @@
 package com.example.dynamo.dto;
 
-public record ItemDto(String nome) {
+public record ItemDto(String nome, String status) {
 }
