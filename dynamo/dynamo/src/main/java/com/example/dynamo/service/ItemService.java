@@ -26,8 +26,8 @@ public class ItemService {
             LocalDate dataAtual = LocalDate.now();
 
             item.setNome(itemDto.nome());
-            item.setItemId(UUID.randomUUID());
-            item.setData(dataAtual.format(DATE_FORMATTER));
+            item.setItemId("ITEM#" + UUID.randomUUID().toString());
+            item.setData("LIST#" + dataAtual.format(DATE_FORMATTER));
             item.setStatus("Todo");
 
             dynamoDbTemplate.save(item);

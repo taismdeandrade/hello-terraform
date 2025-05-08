@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public class Item {
 
-    private UUID itemId;
+    private String itemId;
     private String data;
     private String nome;
     private String status;
@@ -22,11 +22,11 @@ public class Item {
 
     @DynamoDbSortKey
     @DynamoDbAttribute("item_id")
-    public UUID getItemId() {
+    public String getItemId() {
         return itemId;
     }
 
-    public void setItemId(UUID itemId) {
+    public void setItemId(String itemId) {
         this.itemId = itemId;
     }
 
