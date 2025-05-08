@@ -6,12 +6,10 @@ import io.awspring.cloud.dynamodb.DynamoDbTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
-import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -42,25 +40,29 @@ public class ItemService {
         }
     }
 
-    public ResponseEntity<Void> deletarItem(String pKey, String sKey){
-        if (pKey == null || pKey.trim().isEmpty()) {
-            throw new IllegalArgumentException("A Partition key é obrigatória");
+    public ResponseEntity<String> deletarItem(String pKey, String sKey) {
+        if (pKey == null || sKey == null) {
+            return ResponseEntity.badRequest().body("Chave primária ou secundária inválida");
         }
 
-        if (sKey == null || sKey.trim().isEmpty()) {
-            throw new IllegalArgumentException("O ItemId não pode ser vazio");
-        }
+        try {
+            Item item = dynamoDbTemplate.load(Key.builder()
+                    .partitionValue(pKey)
+                    .sortValue(sKey)
+                    .build(), Item.class);
+            if (item == null) {
+                return ResponseEntity.badRequest().body("Item não encontrado.");
+            }
 
-        Item item = dynamoDbTemplate.load(Key.builder()
-                .partitionValue(pKey)
-                .sortValue(sKey)
-                .build(), Item.class);
+            dynamoDbTemplate.delete(item);
+            return ResponseEntity.ok().body("Item deletado com sucesso");
 
-        if (item == null){
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (ResourceNotFoundException e) {
             return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Falha ao deletar o item: " + e.getMessage());
         }
-
-        dynamoDbTemplate.delete(item);
-        return ResponseEntity.noContent().build();
     }
 }

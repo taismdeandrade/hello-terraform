@@ -25,8 +25,8 @@ public class ItemController {
     }
 
     @DeleteMapping("/delete/{pKey}/{sKey}")
-    public ResponseEntity<Void> deletarItem(@PathVariable String pKey, @PathVariable String sKey){
+    public ResponseEntity<Object> deletarItem(@PathVariable String pKey, @PathVariable String sKey){
         itemService.deletarItem(pKey, sKey);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 }
