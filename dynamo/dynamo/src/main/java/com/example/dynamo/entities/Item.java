@@ -9,14 +9,14 @@ import java.util.UUID;
 
 @DynamoDbBean
 
-public class ItemEntity {
+public class Item {
 
     private UUID itemId;
     private String data;
     private String nome;
     private String status;
 
-    public ItemEntity() {
+    public Item() {
 
     }
 
