@@ -24,7 +24,7 @@ public class EditItemHandler implements RequestHandler<EditItemHandler.Input, Ma
     public static class Input {
         public String pk;
         public String sk;
-        public String nome;
+        public String name;
         public String status;
     }
 
@@ -38,7 +38,7 @@ public class EditItemHandler implements RequestHandler<EditItemHandler.Input, Ma
                     .withUpdateExpression("set nome = :n, #s = :s")
                     .withNameMap(new NameMap().with("#s", "status")) // substitui o nome reservado Status
                     .withValueMap(new ValueMap()
-                            .withString(":n", input.nome)
+                            .withString(":n", input.name)
                             .withString(":s", input.status))
                     .withReturnValues("ALL_NEW");
 
