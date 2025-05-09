@@ -1,0 +1,9 @@
+/terraform/.terraform/
+/lambda/.idea/
+/.idea/
+/terraform/.terraform.lock.hcl
+/terraform/terraform.tfstate
+/terraform/terraform.tfstate.backup
+/lambda/add-item/.mvn/
+/lambda/add-item/target/
+/lambda/funcao-um/target/
