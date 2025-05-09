@@ -1,26 +1,30 @@
 variable "function_name" {
-  type = string
-  default = "hello-terraform-java-lambda"
-  description = "O nome da função Lambda."
+  description = "Nome da função Lambda"
+  type        = string
 }
 
 variable "runtime" {
-  type = string
-  default = "java21" 
-  description = "O runtime da função Lambda."
+  description = "Runtime da função Lambda"
+  type        = string
 }
 
 variable "handler" {
-  type = string
-  description = "O handler da função Lambda (ex: com.example.HelloTerraformHandler::handleRequest)."
+  description = "Handler da função Lambda"
+  type        = string
 }
 
 variable "filename" {
-  type = string
-  description = "O caminho para o arquivo .jar da Lambda."
+  description = "Caminho para o arquivo ZIP/JAR da função Lambda"
+  type        = string
 }
 
 variable "role_arn" {
-  type = string
-  description = "O ARN da role de execução da Lambda."
+  description = "ARN da IAM Role para a função Lambda"
+  type        = string
+}
+
+variable "environment_variables" {
+  description = "Variáveis de ambiente para a função Lambda"
+  type        = map(string)
+  default     = {}
 }
