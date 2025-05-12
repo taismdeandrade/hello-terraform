@@ -53,7 +53,7 @@
     aws lambda invoke --function-name hello-terraform-java-lambda --payload "{}" --cli-binary-format raw-in-base64-out response.json
     type response.json
     ```
-8. você deverá ver o Json contendo: 
+8. você deverá ver o Json contendo:
     ```Json
     {
         "body":"Hello terraform",
