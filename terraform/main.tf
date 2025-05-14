@@ -50,6 +50,7 @@ module "remove_item_lambda" {
     DYNAMODB_TABLE_NAME = aws_dynamodb_table.item_table.name
   }
 }
+
 resource "aws_dynamodb_table" "item_table" {
   name           = "item"
   billing_mode   = "PAY_PER_REQUEST"
