@@ -31,6 +31,12 @@ data "archive_file" "edit_zip" {
   output_path = "../src/lambdas/edit-item/edit_item.zip"
 }
 
+data "archive_file" "remove_zip" {
+  type        = "zip"
+  source_dir  = "../src/lambdas/remove-item/"
+  output_path = "../src/lambdas/remove-item/remove_item.zip"
+}
+
 resource "aws_lambda_function" "add_item" {
   filename         = data.archive_file.add_zip.output_path
   function_name    = "add_item"
@@ -63,6 +69,23 @@ resource "aws_lambda_function" "edit_item" {
     }
   }
 }
+
+resource "aws_lambda_function" "remove_item" {
+  filename         = data.archive_file.remove_zip.output_path
+  function_name    = "remove_item"
+  role             = aws_iam_role.lambda_dynamodb_role.arn
+  handler          = "remove_item.remove_item_handler"
+  runtime          = "python3.9"
+  source_code_hash = data.archive_file.remove_zip.output_base64sha256
+  timeout          = 15
+
+    environment {
+    variables = {
+      NOME_TABELA = "itens"
+    }
+  }
+}
+
 
 resource "aws_iam_role" "lambda_execution_role" {
   name = "hello-terraform-role"
