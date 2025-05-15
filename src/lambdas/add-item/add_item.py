@@ -7,7 +7,7 @@ dynamodb = boto3.resource('dynamodb')
 nome_tabela = os.environ['NOME_TABELA']
 tabela = dynamodb.Table(nome_tabela)
 
-def lambda_handler(event, context):
+def add_item_handler(event, context):
     try:
         tabela.put_item(Item={
             'SK': 'ITEM#' + str(uuid.uuid4()),
