@@ -19,19 +19,19 @@ resource "aws_dynamodb_table" "item_table" {
   }
 }
 
-data "archive_file" "lambda_zip" {
+data "archive_file" "add_zip" {
   type        = "zip"
-  source_dir  = "../lambdas/"
-  output_path = "../lambdas/add_item.zip"
+  source_dir  = "../src/lambdas/add-item/"
+  output_path = "../src/lambdas/add-item/add_item.zip"
 }
 
 resource "aws_lambda_function" "add_item" {
-  filename         = data.archive_file.lambda_zip.output_path
-  function_name    = "lambda_handler"
+  filename         = data.archive_file.add_zip.output_path
+  function_name    = "add_item"
   role             = aws_iam_role.lambda_dynamodb_role.arn
-  handler          = "add_item.lambda_handler"
+  handler          = "add_item.add_item_handler"
   runtime          = "python3.9"
-  source_code_hash = data.archive_file.lambda_zip.output_base64sha256
+  source_code_hash = data.archive_file.add_zip.output_base64sha256
   timeout          = 15
 
     environment {
