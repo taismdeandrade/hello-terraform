@@ -33,6 +33,12 @@ resource "aws_lambda_function" "add_item" {
   runtime          = "python3.9"
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
   timeout          = 15
+
+    environment {
+    variables = {
+      NOME_TABELA = "itens"
+    }
+  }
 }
 
 resource "aws_iam_role" "lambda_execution_role" {

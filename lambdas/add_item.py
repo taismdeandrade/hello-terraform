@@ -1,13 +1,15 @@
 import json
+import os
 import boto3
 import uuid
 
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('itens')
+nome_tabela = os.environ['NOME_TABELA']
+tabela = dynamodb.Table(nome_tabela)
 
 def lambda_handler(event, context):
     try:
-        table.put_item(Item={
+        tabela.put_item(Item={
             'SK': 'ITEM#' + str(uuid.uuid4()),
             'PK': 'LIST#' + event['data'],
             'nome': event['nome'],
