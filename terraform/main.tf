@@ -19,6 +19,12 @@ resource "aws_dynamodb_table" "item_table" {
   }
 }
 
+data "archive_file" "hello_zip" {
+  type        = "zip"
+  source_dir  = "../src/lambdas/hello-terraform/"
+  output_path = "../src/lambdas/hello-terraform/hello.zip"
+}
+
 data "archive_file" "add_zip" {
   type        = "zip"
   source_dir  = "../src/lambdas/add-item/"
@@ -37,6 +43,16 @@ data "archive_file" "remove_zip" {
   output_path = "../src/lambdas/remove-item/remove_item.zip"
 }
 
+resource "aws_lambda_function" "hello" {
+  filename         = data.archive_file.hello_zip.output_path
+  function_name    = "hello"
+  role             = aws_iam_role.lambda_execution_role.arn
+  handler          = "hello.hello_handler"
+  runtime          = "python3.9"
+  source_code_hash = data.archive_file.hello_zip.output_base64sha256
+  timeout          = 15
+}
+
 resource "aws_lambda_function" "add_item" {
   filename         = data.archive_file.add_zip.output_path
   function_name    = "add_item"
@@ -52,7 +68,6 @@ resource "aws_lambda_function" "add_item" {
     }
   }
 }
-
 
 resource "aws_lambda_function" "edit_item" {
   filename         = data.archive_file.edit_zip.output_path
@@ -85,7 +100,6 @@ resource "aws_lambda_function" "remove_item" {
     }
   }
 }
-
 
 resource "aws_iam_role" "lambda_execution_role" {
   name = "hello-terraform-role"
@@ -121,7 +135,7 @@ resource "aws_iam_role" "lambda_dynamodb_role" {
 
 resource "aws_iam_policy" "lambda_execution_policy" {
   name        = "hello-terraform-policy"
-  description = "Permissões básicas para execução da Lambda (Java)"
+  description = "Permissões básicas para execução da Lambda"
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
