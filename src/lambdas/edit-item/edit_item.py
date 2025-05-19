@@ -8,6 +8,13 @@ tabela = dynamodb.Table(nome_tabela)
 
 def edit_item_handler(event, context):
     try:
+        status = event.get('status')
+        if status not in ["todo", "done"]:
+            return {
+                'statusCode': 400,
+                'body': json.dumps({'mensagem': 'O status deve ser "todo" ou "done"'})
+            }
+        
         response = tabela.get_item(
             Key={
                 'SK': event['sk'],
@@ -19,6 +26,7 @@ def edit_item_handler(event, context):
                 'statusCode': 404,
                 'body': json.dumps({'mensagem': 'Item não encontrado'})
             }
+        
         tabela.update_item(
             Key={
                 'SK': event['sk'],
