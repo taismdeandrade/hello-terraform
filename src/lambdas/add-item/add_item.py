@@ -4,27 +4,41 @@ import boto3
 import uuid
 
 dynamodb = boto3.resource('dynamodb')
-nome_tabela = os.environ['NOME_TABELA']
+nome_tabela = os.environ.get('NOME_TABELA')
 tabela = dynamodb.Table(nome_tabela)
 
 def add_item_handler(event, context):
     try:
-        tabela.put_item(Item={
-            'SK': 'ITEM#' + str(uuid.uuid4()),
-            'PK': 'LIST#' + event['data'],
-            'nome': event['nome'],
+        if not event.get('data') or not event.get('nome'):
+            return {
+                'statusCode': 400, 
+                'body': json.dumps({
+                    'mensagem': 'Erro ao adicionar item',
+                    'erro': 'Data e nome são obrigatórios'
+                })
+            }
+        item_id = str(uuid.uuid4())
+        tabela.put_item(
+            Item={
+            'SK': 'ITEM#' + item_id,
+            'PK': 'LIST#' + event.get('data'),
+            'nome': event.get('nome'),
             'status': 'todo'            
         })
         return {
-            'mensagem': 'Item adicionado com sucesso',
-            'data': event['data'],
-            'nome': event['nome']                      
+            'statusCode': 201,
+            'body': json.dumps({
+                'mensagem': 'Item adicionado com sucesso',
+                'nome': event.get('nome'),
+                'data': event.get('data'),
+                'status': event.get('status')                                
+            })
         }
     except Exception as e:
         return {
             'statusCode': 500,
             'body': json.dumps({
-                'message': 'Erro ao adicionar item',
-                'error': str(e)
+                'mensagem': 'Erro ao adicionar item',
+                'erro': str(e)
             })
         }
