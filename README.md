@@ -5,10 +5,14 @@
     git clone git@github.com:taismdeandrade/hello-terraform.git
     cd hello-terraform
     ```
+2. Instale as bibliotecas listadas no requirements.txt, exemplo:
+```bash
+    pip install boto3==1.38.16
+```
 
 ## Como Subir o Terraform
 
-1. Certifique-se de ter o Terraform instalado.
+1. Certifique-se de ter o [Terraform](https://developer.hashicorp.com/terraform) instalado.
 
 2. Navegue até o diretório onde os arquivos do Terraform estão localizados:
     ```bash
@@ -35,7 +39,7 @@
     ```bash
     aws lambda invoke --function-name add_item --payload "{"nome":"arroz", "data":"2025-05-15"}" --cli-binary-format raw-in-base64-out response.json
     ```
-8. O comando acima criará um arquivo chamado response.json e deverá conter a resposta da invocaçãod da lambda:
+8. O comando acima criará um arquivo chamado response.json e deverá conter a resposta da invocação da lambda:
     ```Json
     {
         "nome":"arroz",
@@ -83,7 +87,6 @@ Siga a estrutura de [Conventional Commits](https://www.conventionalcommits.org/p
 - `refactor:` Commits, que reescrevem/reestruturam o código,mas que não mudam nenhuma funcionalidade.
 - `docs:` Alterações na documentação.
 - `style:`   Alterações que não afetam o significado do código (formatação, espaçamento, etc.).
-- `refactor:` Uma refatoração de código que não corrige um bug nem adiciona uma funcionalidade.
 - `test:`    Adição ou correção de testes.
 - `build:`   Alterações no sistema de build ou dependências externas.
 - `ci:`      Alterações nos arquivos de configuração de CI/CD e scripts.
