@@ -210,6 +210,15 @@ resource "aws_cognito_user_pool" "user_pool" {
     attribute_data_type = "String"
   }
 
+  username_attributes = ["email"]
+
+  account_recovery_setting {
+    recovery_mechanism {
+      name     = "verified_email"
+      priority = 1
+    }
+  }
+
 }
 
 resource "aws_cognito_user_pool_client" "users_pool_client" {
