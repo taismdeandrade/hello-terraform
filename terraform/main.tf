@@ -3,10 +3,10 @@ provider "aws" {
 }
 
 resource "aws_dynamodb_table" "item_table" {
-  name           = "itens"
-  billing_mode   = "PAY_PER_REQUEST"
-  hash_key       = "PK"
-  range_key      = "SK"
+  name         = "itens"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "PK"
+  range_key    = "SK"
 
   attribute {
     name = "PK"
@@ -62,7 +62,7 @@ resource "aws_lambda_function" "add_item" {
   source_code_hash = data.archive_file.add_zip.output_base64sha256
   timeout          = 15
 
-    environment {
+  environment {
     variables = {
       NOME_TABELA = "itens"
     }
@@ -78,7 +78,7 @@ resource "aws_lambda_function" "edit_item" {
   source_code_hash = data.archive_file.edit_zip.output_base64sha256
   timeout          = 15
 
-    environment {
+  environment {
     variables = {
       NOME_TABELA = "itens"
     }
@@ -94,7 +94,7 @@ resource "aws_lambda_function" "remove_item" {
   source_code_hash = data.archive_file.remove_zip.output_base64sha256
   timeout          = 15
 
-    environment {
+  environment {
     variables = {
       NOME_TABELA = "itens"
     }
@@ -191,4 +191,36 @@ resource "aws_iam_role_policy_attachment" "lambda_execution_policy_attachment" {
 resource "aws_iam_role_policy_attachment" "lambda_dynamodb_policy_attachment" {
   role       = aws_iam_role.lambda_dynamodb_role.name
   policy_arn = aws_iam_policy.lambda_dynamodb_policy.arn
+}
+
+resource "aws_cognito_user_pool" "user_pool" {
+  name = "users"
+
+  password_policy {
+    minimum_length    = 8
+    require_uppercase = true
+    require_numbers   = true
+    require_symbols   = true
+  }
+
+  schema {
+    name                = "email"
+    required            = true
+    mutable             = false
+    attribute_data_type = "String"
+  }
+
+}
+
+resource "aws_cognito_user_pool_client" "users_pool_client" {
+  name         = "users_pool_client"
+  user_pool_id = aws_cognito_user_pool.user_pool.id
+
+  explicit_auth_flows = [
+    "ALLOW_USER_PASSWORD_AUTH",
+    "ALLOW_REFRESH_TOKEN_AUTH",
+    "ALLOW_USER_SRP_AUTH"
+  ]
+
+  prevent_user_existence_errors = "ENABLED"
 }
