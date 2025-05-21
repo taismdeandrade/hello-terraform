@@ -1,12 +1,17 @@
 provider "aws" {
   region = "us-east-1"
 }
+variable "region" {
+  description = "AWS region"
+  type        = string
+  default     = "us-east-1"
+}
 
 resource "aws_dynamodb_table" "item_table" {
-  name           = "itens"
-  billing_mode   = "PAY_PER_REQUEST"
-  hash_key       = "PK"
-  range_key      = "SK"
+  name         = "itens"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "PK"
+  range_key    = "SK"
 
   attribute {
     name = "PK"
@@ -62,7 +67,7 @@ resource "aws_lambda_function" "add_item" {
   source_code_hash = data.archive_file.add_zip.output_base64sha256
   timeout          = 15
 
-    environment {
+  environment {
     variables = {
       NOME_TABELA = "itens"
     }
@@ -78,7 +83,7 @@ resource "aws_lambda_function" "edit_item" {
   source_code_hash = data.archive_file.edit_zip.output_base64sha256
   timeout          = 15
 
-    environment {
+  environment {
     variables = {
       NOME_TABELA = "itens"
     }
@@ -94,12 +99,21 @@ resource "aws_lambda_function" "remove_item" {
   source_code_hash = data.archive_file.remove_zip.output_base64sha256
   timeout          = 15
 
-    environment {
+  environment {
     variables = {
       NOME_TABELA = "itens"
     }
   }
 }
+
+resource "aws_lambda_permission" "api_gw_hello" {
+  statement_id  = "AllowAPIGatewayInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.hello.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${module.api.api_execution_arn}/*/*"
+}
+
 
 resource "aws_iam_role" "lambda_execution_role" {
   name = "hello-terraform-role"
@@ -191,4 +205,28 @@ resource "aws_iam_role_policy_attachment" "lambda_execution_policy_attachment" {
 resource "aws_iam_role_policy_attachment" "lambda_dynamodb_policy_attachment" {
   role       = aws_iam_role.lambda_dynamodb_role.name
   policy_arn = aws_iam_policy.lambda_dynamodb_policy.arn
+}
+
+
+output "cognito_user_pool_id" {
+  value = module.cognito.user_pool_id
+}
+output "cognito_client_id" {
+  value = module.cognito.user_pool_client_id
+}
+output "api_endpoint" {
+  value = module.api.api_endpoint
+}
+
+
+module "cognito" {
+  source = "./modules/cognito"
+
+}
+module "api" {
+  source            = "./modules/api_gateway"
+  lambda_arn        = aws_lambda_function.hello.arn
+  user_pool_id      = module.cognito.user_pool_id
+  region            = var.region
+  cognito_client_id = module.cognito.user_pool_client_id
 }
