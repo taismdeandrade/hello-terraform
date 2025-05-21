@@ -221,12 +221,12 @@ output "api_endpoint" {
 
 module "cognito" {
   source = "./modules/cognito"
-  
+
 }
 module "api" {
-  source        = "./modules/api_gateway"
-  lambda_arn    = aws_lambda_function.hello.arn  
-  user_pool_id  = module.cognito.user_pool_id
-  region        = var.region
+  source            = "./modules/api_gateway"
+  lambda_arn        = aws_lambda_function.hello.arn
+  user_pool_id      = module.cognito.user_pool_id
+  region            = var.region
   cognito_client_id = module.cognito.user_pool_client_id
 }
