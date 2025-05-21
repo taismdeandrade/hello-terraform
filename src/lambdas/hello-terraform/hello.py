@@ -1,5 +1,7 @@
+import json
+
 def hello_handler(event, context):
     return {
-        'statusCode': 200,
-        'body': 'Hello terraform!'
+        "statusCode": 200,
+        "body": json.dumps({"message": "Hello, Terraform! If you're reading this, it worked! (Authenticated with success)"}),
     }

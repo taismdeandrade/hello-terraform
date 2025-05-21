@@ -1,6 +1,11 @@
 provider "aws" {
   region = "us-east-1"
 }
+variable "region" {
+  description = "AWS region"
+  type        = string
+  default     = "us-east-1"
+}
 
 resource "aws_dynamodb_table" "item_table" {
   name         = "itens"
@@ -101,6 +106,15 @@ resource "aws_lambda_function" "remove_item" {
   }
 }
 
+resource "aws_lambda_permission" "api_gw_hello" {
+  statement_id  = "AllowAPIGatewayInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.hello.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${module.api.api_execution_arn}/*/*"
+}
+
+
 resource "aws_iam_role" "lambda_execution_role" {
   name = "hello-terraform-role"
   assume_role_policy = jsonencode({
@@ -193,43 +207,26 @@ resource "aws_iam_role_policy_attachment" "lambda_dynamodb_policy_attachment" {
   policy_arn = aws_iam_policy.lambda_dynamodb_policy.arn
 }
 
-resource "aws_cognito_user_pool" "user_pool" {
-  name = "users"
 
-  password_policy {
-    minimum_length    = 8
-    require_uppercase = true
-    require_numbers   = true
-    require_symbols   = true
-  }
-
-  schema {
-    name                = "email"
-    required            = true
-    mutable             = false
-    attribute_data_type = "String"
-  }
-
-  username_attributes = ["email"]
-
-  account_recovery_setting {
-    recovery_mechanism {
-      name     = "verified_email"
-      priority = 1
-    }
-  }
-
+output "cognito_user_pool_id" {
+  value = module.cognito.user_pool_id
+}
+output "cognito_client_id" {
+  value = module.cognito.user_pool_client_id
+}
+output "api_endpoint" {
+  value = module.api.api_endpoint
 }
 
-resource "aws_cognito_user_pool_client" "users_pool_client" {
-  name         = "users_pool_client"
-  user_pool_id = aws_cognito_user_pool.user_pool.id
 
-  explicit_auth_flows = [
-    "ALLOW_USER_PASSWORD_AUTH",
-    "ALLOW_REFRESH_TOKEN_AUTH",
-    "ALLOW_USER_SRP_AUTH"
-  ]
+module "cognito" {
+  source = "./modules/cognito"
 
-  prevent_user_existence_errors = "ENABLED"
+}
+module "api" {
+  source            = "./modules/api_gateway"
+  lambda_arn        = aws_lambda_function.hello.arn
+  user_pool_id      = module.cognito.user_pool_id
+  region            = var.region
+  cognito_client_id = module.cognito.user_pool_client_id
 }
