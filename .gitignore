@@ -1,0 +1,7 @@
+.venv
+*.zip
+.terraform
+*.tfstate
+*.tfstate.*
+*.tfvars
+.terraform.lock.hcl
