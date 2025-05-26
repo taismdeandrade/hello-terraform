@@ -23,8 +23,8 @@ variable "cognito_client_id" {
   type        = string
 }
 
-variable "account_id" {
-  description = "AWS Account ID"
+variable "get_lambda_arn" {
+  description = "GET lambda arn"
   type        = string
 }
 
