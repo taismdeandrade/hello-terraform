@@ -1,7 +1,7 @@
 import json
 import os
 import boto3
-import uuid
+from boto3.dynamodb.conditions import Key
 
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["NOME_TABELA"])
@@ -10,13 +10,27 @@ table = dynamodb.Table(os.environ["NOME_TABELA"])
 def get_items_handler(event, context):
 
     try:
+        user_id = event["requestContext"]["authorizer"]["jwt"]["claims"]["sub"]
+    except KeyError:
+        return {
+            "statusCode": 401,
+            "body": json.dumps({"message": "Usuário não autenticado"}),
+        }
 
-        response = table.scan()
+    try:
+        response = table.query(
+            KeyConditionExpression=Key("PK").eq(f"USER#{user_id}")
+            & Key("SK").begins_with("ITEM#")
+        )
+
         items = response.get("Items", [])
 
         return {
             "statusCode": 200,
-            "headers": {"Content-Type": "application/json"},
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Credentials": True,
+            },
             "body": json.dumps(items),
         }
 
