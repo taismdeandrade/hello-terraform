@@ -1,3 +1,11 @@
+terraform {
+  backend "s3" {
+    bucket = "tais-items-list"
+    key    = "state/terraform.tfstate"
+    region = "us-east-1"
+  }
+}
+
 provider "aws" {
   region = "us-east-1"
 }
@@ -5,6 +13,12 @@ variable "region" {
   description = "AWS region"
   type        = string
   default     = "us-east-1"
+}
+
+variable "account_id" {
+  description = "AWS Account ID"
+  type        = string
+  default     = "577902954365"
 }
 
 resource "aws_dynamodb_table" "item_table" {
@@ -28,6 +42,12 @@ data "archive_file" "hello_zip" {
   type        = "zip"
   source_dir  = "../src/lambdas/hello-terraform/"
   output_path = "../src/lambdas/hello-terraform/hello.zip"
+}
+
+data "archive_file" "get_items_zip" {
+  type        = "zip"
+  source_dir  = "../src/lambdas/get_items/"
+  output_path = "../src/lambdas/get_items/get_items.zip"
 }
 
 data "archive_file" "add_zip" {
@@ -56,6 +76,22 @@ resource "aws_lambda_function" "hello" {
   runtime          = "python3.9"
   source_code_hash = data.archive_file.hello_zip.output_base64sha256
   timeout          = 15
+}
+
+resource "aws_lambda_function" "get_items" {
+  filename         = data.archive_file.get_items_zip.output_path
+  function_name    = "get_items"
+  role             = aws_iam_role.lambda_dynamodb_role.arn
+  handler          = "get_items.get_items_handler"
+  runtime          = "python3.9"
+  source_code_hash = data.archive_file.get_items_zip.output_base64sha256
+  timeout          = 15
+
+  environment {
+    variables = {
+      NOME_TABELA = "itens"
+    }
+  }
 }
 
 resource "aws_lambda_function" "add_item" {
@@ -226,7 +262,9 @@ module "cognito" {
 module "api" {
   source            = "./modules/api_gateway"
   lambda_arn        = aws_lambda_function.hello.arn
+  lambda_arn_get    = aws_lambda_function.get_items.arn
   user_pool_id      = module.cognito.user_pool_id
   region            = var.region
   cognito_client_id = module.cognito.user_pool_client_id
+  account_id        = var.account_id
 }

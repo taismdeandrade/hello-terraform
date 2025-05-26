@@ -3,6 +3,11 @@ variable "lambda_arn" {
   type        = string
 }
 
+variable "lambda_arn_get" {
+  description = "ARN da função Lambda que o API Gateway irá invocar"
+  type        = string
+}
+
 variable "user_pool_id" {
   description = "ID do Cognito User Pool"
   type        = string
@@ -17,3 +22,9 @@ variable "cognito_client_id" {
   description = "ID do App Client no Cognito"
   type        = string
 }
+
+variable "account_id" {
+  description = "AWS Account ID"
+  type        = string
+}
+
