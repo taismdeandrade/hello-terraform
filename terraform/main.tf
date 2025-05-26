@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "tais-items-list"
+    bucket = "tais-shopping-list"
     key    = "state/terraform.tfstate"
     region = "us-east-1"
   }
@@ -218,7 +218,10 @@ resource "aws_iam_policy" "lambda_dynamodb_policy" {
           "dynamodb:Scan"
         ],
         Effect   = "Allow",
-        Resource = aws_dynamodb_table.item_table.arn
+        Resource = [
+          aws_dynamodb_table.item_table.arn,
+          "${aws_dynamodb_table.item_table.arn}/index/SK-index"
+        ]
       },
       {
         Action = [
@@ -262,9 +265,9 @@ module "cognito" {
 module "api" {
   source            = "./modules/api_gateway"
   lambda_arn        = aws_lambda_function.hello.arn
+  get_lambda_arn    = aws_lambda_function.get_items.arn
   lambda_arn_get    = aws_lambda_function.get_items.arn
   user_pool_id      = module.cognito.user_pool_id
   region            = var.region
   cognito_client_id = module.cognito.user_pool_client_id
-  account_id        = var.account_id
 }
