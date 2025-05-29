@@ -10,9 +10,6 @@ tabela = dynamodb.Table(nome_tabela)
 
 def add_item_handler(event, context):
     try:
-
-        user_id = event["requestContext"]["authorizer"]["jwt"]["claims"]["sub"]
-
         if not event.get("data") or not event.get("nome"):
             return {
                 "statusCode": 400,
@@ -25,13 +22,15 @@ def add_item_handler(event, context):
             }
 
         item_id = str(uuid.uuid4())
+        name = event.get("nome")
+        date = event.get("data")
 
         tabela.put_item(
             Item={
-                "PK": f"USER#{user_id}",
-                "SK": "ITEM#" + item_id,
-                "data": event.get("data"),
-                "nome": event.get("nome"),
+                "PK": f"LIST#{date}",
+                "SK": f"ITEM#{item_id}",
+                "data": date,
+                "nome": name,
                 "status": "todo",
             }
         )
@@ -41,9 +40,9 @@ def add_item_handler(event, context):
             "body": json.dumps(
                 {
                     "mensagem": "Item adicionado com sucesso",
-                    "nome": event.get("nome"),
-                    "data": event.get("data"),
-                    "status": event.get("status"),
+                    "nome": name,
+                    "data": date,
+                    "status": "todo",
                 }
             ),
         }
