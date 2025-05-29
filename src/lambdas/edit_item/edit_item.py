@@ -4,7 +4,7 @@ import boto3
 
 dynamodb = boto3.resource('dynamodb')
 nome_tabela = os.environ.get('NOME_TABELA')
-tabela = dynamodb.Table(nome_tabela)
+table = dynamodb.Table(nome_tabela)
 
 def edit_item_handler(event, context):
     try:
@@ -15,7 +15,7 @@ def edit_item_handler(event, context):
                 'body': json.dumps({'mensagem': 'O status deve ser "todo" ou "done"'})
             }
         
-        response = tabela.get_item(
+        response = table.get_item(
             Key={
                 'SK': event['sk'],
                 'PK': event['pk']
@@ -27,7 +27,7 @@ def edit_item_handler(event, context):
                 'body': json.dumps({'mensagem': 'Item não encontrado'})
             }
         
-        tabela.update_item(
+        table.update_item(
             Key={
                 'SK': event['sk'],
                 'PK': event['pk']

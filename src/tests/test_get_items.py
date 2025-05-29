@@ -1,5 +1,5 @@
 import json
-from lambdas.get_items.get_items import get_items_handler
+from src.lambdas.get_items.get_items import get_items_handler
 
 
 def test_get_items_success(mock_dynamodb_table, sample_item, user_event):

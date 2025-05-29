@@ -1,7 +1,15 @@
+import sys
 import pytest
 import os
 import uuid
 from unittest.mock import patch, MagicMock
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+src_path = os.path.abspath(os.path.join(current_dir, "..", "..")) 
+
+if src_path not in sys.path:
+    sys.path.insert(0, src_path)
 
 os.environ["NOME_TABELA"] = "test_table"
 
@@ -13,7 +21,7 @@ def user_event(sub="test-user-id"):
 
 @pytest.fixture(autouse=True)
 def mock_dynamodb_table():
-    with patch("lambdas.get_items.get_items.table") as mock_table:
+    with patch("src.lambdas.get_items.get_items.table") as mock_table:
         yield mock_table
 
 
