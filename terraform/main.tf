@@ -36,6 +36,12 @@ resource "aws_dynamodb_table" "item_table" {
     name = "SK"
     type = "S"
   }
+
+  global_secondary_index {
+    name            = "SK-index"
+    hash_key        = "SK"
+    projection_type = "ALL"
+  }
 }
 
 data "archive_file" "hello_zip" {
@@ -217,7 +223,7 @@ resource "aws_iam_policy" "lambda_dynamodb_policy" {
           "dynamodb:Query",
           "dynamodb:Scan"
         ],
-        Effect   = "Allow",
+        Effect = "Allow",
         Resource = [
           aws_dynamodb_table.item_table.arn,
           "${aws_dynamodb_table.item_table.arn}/index/SK-index"

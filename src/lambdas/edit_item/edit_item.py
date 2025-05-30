@@ -1,6 +1,7 @@
 import json
 import os
 import boto3
+from boto3.dynamodb.conditions import Key
 
 dynamodb = boto3.resource('dynamodb')
 nome_tabela = os.environ.get('NOME_TABELA')
@@ -8,47 +9,62 @@ table = dynamodb.Table(nome_tabela)
 
 def edit_item_handler(event, context):
     try:
-        status = event.get('status')
-        if status not in ["todo", "done"]:
+        path_parameters = event.get('pathParameters', {})
+        id_item = path_parameters.get('id_item')
+
+        if not id_item:
+            return {
+                'statusCode': 400,
+                'body': json.dumps({'mensagem': 'Parâmetro id_item é obrigatório na URL'})
+            }
+
+        body = json.loads(event.get('body', '{}'))
+        novo_nome = body.get('nome')
+        novo_status = body.get('status')
+
+        if novo_status not in ["todo", "done"]:
             return {
                 'statusCode': 400,
                 'body': json.dumps({'mensagem': 'O status deve ser "todo" ou "done"'})
             }
-        
-        response = table.get_item(
-            Key={
-                'SK': event['sk'],
-                'PK': event['pk']
-            }
+
+        # Consulta usando GSI "SK-index"
+        response = table.query(
+            IndexName='SK-index',
+            KeyConditionExpression=Key('SK').eq(id_item)
         )
-        if 'Item' not in response:
+        items = response.get('Items', [])
+        if not items:
             return {
                 'statusCode': 404,
                 'body': json.dumps({'mensagem': 'Item não encontrado'})
             }
-        
+
+        item = items[0]
+        pk = item['PK']
+
         table.update_item(
             Key={
-                'SK': event['sk'],
-                'PK': event['pk']
+                'PK': pk,
+                'SK': id_item
             },
             UpdateExpression='SET nome = :nome, #st = :status',
             ExpressionAttributeValues={
-                ':nome': event['nome'],
-                ':status': event['status']
+                ':nome': novo_nome,
+                ':status': novo_status
             },
             ExpressionAttributeNames={
-                '#st': 'status' 
+                '#st': 'status'
             }
         )
+
         return {
-            'mensagem': 'Item atualizado com sucesso',
-            'status': event.get('status'),
-            'nome': event.get('nome')
+            'statusCode': 200,
+            'body': json.dumps({'mensagem': 'Item atualizado com sucesso'})
         }
+
     except Exception as e:
         return {
             'statusCode': 500,
             'body': json.dumps({'mensagem': 'Erro inesperado', 'erro': str(e)})
         }
-
