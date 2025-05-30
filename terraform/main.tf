@@ -36,6 +36,12 @@ resource "aws_dynamodb_table" "item_table" {
     name = "SK"
     type = "S"
   }
+
+  global_secondary_index {
+    name            = "SK-index"
+    hash_key        = "SK"
+    projection_type = "ALL"
+  }
 }
 
 data "archive_file" "hello_zip" {
@@ -58,8 +64,8 @@ data "archive_file" "add_zip" {
 
 data "archive_file" "edit_zip" {
   type        = "zip"
-  source_dir  = "../src/lambdas/edit-item/"
-  output_path = "../src/lambdas/edit-item/edit_item.zip"
+  source_dir  = "../src/lambdas/edit_item/"
+  output_path = "../src/lambdas/edit_item/edit_item.zip"
 }
 
 data "archive_file" "remove_zip" {
@@ -217,7 +223,7 @@ resource "aws_iam_policy" "lambda_dynamodb_policy" {
           "dynamodb:Query",
           "dynamodb:Scan"
         ],
-        Effect   = "Allow",
+        Effect = "Allow",
         Resource = [
           aws_dynamodb_table.item_table.arn,
           "${aws_dynamodb_table.item_table.arn}/index/SK-index"
@@ -267,6 +273,7 @@ module "api" {
   lambda_arn        = aws_lambda_function.hello.arn
   get_lambda_arn    = aws_lambda_function.get_items.arn
   lambda_arn_get    = aws_lambda_function.get_items.arn
+  edit_lambda_arn   = aws_lambda_function.edit_item.arn
   user_pool_id      = module.cognito.user_pool_id
   region            = var.region
   cognito_client_id = module.cognito.user_pool_client_id

@@ -28,3 +28,7 @@ variable "get_lambda_arn" {
   type        = string
 }
 
+variable "edit_lambda_arn" {
+  description = "ARN da função Lambda de editar itens"
+  type        = string
+}
