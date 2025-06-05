@@ -1,24 +1,11 @@
-terraform {
-  backend "s3" {
-    bucket = "tais-shopping-list"
-    key    = "state/terraform.tfstate"
-    region = "us-east-1"
-  }
+provider "aws" {
+  region = "sa-east-1"
 }
 
-provider "aws" {
-  region = "us-east-1"
-}
 variable "region" {
   description = "AWS region"
   type        = string
-  default     = "us-east-1"
-}
-
-variable "account_id" {
-  description = "AWS Account ID"
-  type        = string
-  default     = "577902954365"
+  default     = "sa-east-1"
 }
 
 resource "aws_dynamodb_table" "item_table" {
@@ -52,8 +39,8 @@ data "archive_file" "hello_zip" {
 
 data "archive_file" "get_items_zip" {
   type        = "zip"
-  source_dir  = "../src/lambdas/get_items/"
-  output_path = "../src/lambdas/get_items/get_items.zip"
+  source_dir  = "../src/lambdas/get-items/"
+  output_path = "../src/lambdas/get-items/get_items.zip"
 }
 
 data "archive_file" "add_zip" {
@@ -64,8 +51,8 @@ data "archive_file" "add_zip" {
 
 data "archive_file" "edit_zip" {
   type        = "zip"
-  source_dir  = "../src/lambdas/edit_item/"
-  output_path = "../src/lambdas/edit_item/edit_item.zip"
+  source_dir  = "../src/lambdas/edit-item/"
+  output_path = "../src/lambdas/edit-item/edit_item.zip"
 }
 
 data "archive_file" "remove_zip" {
@@ -156,6 +143,13 @@ resource "aws_lambda_permission" "api_gw_hello" {
   source_arn    = "${module.api.api_execution_arn}/*/*"
 }
 
+resource "aws_lambda_permission" "api_gw_get_item" {
+  statement_id  = "AllowAPIGatewayInvokeGetItem"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.get_items.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${module.api.api_execution_arn}/*/*"
+}
 
 resource "aws_iam_role" "lambda_execution_role" {
   name = "hello-terraform-role"
@@ -252,28 +246,17 @@ resource "aws_iam_role_policy_attachment" "lambda_dynamodb_policy_attachment" {
   policy_arn = aws_iam_policy.lambda_dynamodb_policy.arn
 }
 
-
-output "cognito_user_pool_id" {
-  value = module.cognito.user_pool_id
-}
-output "cognito_client_id" {
-  value = module.cognito.user_pool_client_id
-}
-output "api_endpoint" {
-  value = module.api.api_endpoint
-}
-
-
 module "cognito" {
   source = "./modules/cognito"
-
 }
+
 module "api" {
   source            = "./modules/api_gateway"
   lambda_arn        = aws_lambda_function.hello.arn
   get_lambda_arn    = aws_lambda_function.get_items.arn
   lambda_arn_get    = aws_lambda_function.get_items.arn
   edit_lambda_arn   = aws_lambda_function.edit_item.arn
+  lambda_arn_add    = aws_lambda_function.add_item.arn
   user_pool_id      = module.cognito.user_pool_id
   region            = var.region
   cognito_client_id = module.cognito.user_pool_client_id

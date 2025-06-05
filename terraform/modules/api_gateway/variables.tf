@@ -8,6 +8,11 @@ variable "lambda_arn_get" {
   type        = string
 }
 
+variable "lambda_arn_add" {
+  description = "ARN da função Lambda add_item que o API Gateway irá invocar"
+  type        = string
+}
+
 variable "user_pool_id" {
   description = "ID do Cognito User Pool"
   type        = string
