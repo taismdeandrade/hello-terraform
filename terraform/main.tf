@@ -33,32 +33,32 @@ resource "aws_dynamodb_table" "item_table" {
 
 data "archive_file" "hello_zip" {
   type        = "zip"
-  source_dir  = "../src/lambdas/hello-terraform/"
-  output_path = "../src/lambdas/hello-terraform/hello.zip"
+  source_dir  = "../src/lambdas/hello_terraform/"
+  output_path = "../src/lambdas/hello_terraform/hello.zip"
 }
 
 data "archive_file" "get_items_zip" {
   type        = "zip"
-  source_dir  = "../src/lambdas/get-items/"
-  output_path = "../src/lambdas/get-items/get_items.zip"
+  source_dir  = "../src/lambdas/get_items/"
+  output_path = "../src/lambdas/get_items/get_items.zip"
 }
 
 data "archive_file" "add_zip" {
   type        = "zip"
-  source_dir  = "../src/lambdas/add-item/"
-  output_path = "../src/lambdas/add-item/add_item.zip"
+  source_dir  = "../src/lambdas/add_item/"
+  output_path = "../src/lambdas/add_item/add_item.zip"
 }
 
 data "archive_file" "edit_zip" {
   type        = "zip"
-  source_dir  = "../src/lambdas/edit-item/"
-  output_path = "../src/lambdas/edit-item/edit_item.zip"
+  source_dir  = "../src/lambdas/edit_item/"
+  output_path = "../src/lambdas/edit_item/edit_item.zip"
 }
 
 data "archive_file" "remove_zip" {
   type        = "zip"
-  source_dir  = "../src/lambdas/remove-item/"
-  output_path = "../src/lambdas/remove-item/remove_item.zip"
+  source_dir  = "../src/lambdas/remove_item/"
+  output_path = "../src/lambdas/remove_item/remove_item.zip"
 }
 
 resource "aws_lambda_function" "hello" {
