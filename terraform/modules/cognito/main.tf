@@ -15,8 +15,16 @@ resource "aws_cognito_user_pool" "user_pool" {
     attribute_data_type = "String"
   }
 
-  username_attributes = ["email"]
+  schema {
+    name                = "name"
+    required            = false
+    mutable             = true
+    attribute_data_type = "String"
+  }
 
+  alias_attributes = ["email"]
+  auto_verified_attributes = ["email"]
+  
   account_recovery_setting {
     recovery_mechanism {
       name     = "verified_email"
