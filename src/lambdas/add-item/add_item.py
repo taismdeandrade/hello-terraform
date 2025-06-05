@@ -15,14 +15,14 @@ def add_item_handler(event, context):
         return {
             "statusCode": 401,
             "body": json.dumps({"error": f"Usuário não autenticado"}),
-    }
+        }
     try:
         json_recebido = event.get("body", "{}")
         request_body = json.loads(json_recebido)
-        
+
         date = request_body.get("data")
         name = request_body.get("nome")
-        
+
         if not date or not name:
             return {
                 "statusCode": 400,

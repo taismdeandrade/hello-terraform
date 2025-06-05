@@ -7,6 +7,7 @@ DYNAMODB = boto3.resource("dynamodb")
 nome_tabela = os.environ.get("NOME_TABELA")
 TABELA = DYNAMODB.Table(nome_tabela)
 
+
 def get_items_handler(event, context):
 
     try:
