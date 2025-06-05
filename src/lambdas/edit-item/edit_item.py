@@ -3,11 +3,18 @@ import os
 import boto3
 from boto3.dynamodb.conditions import Key
 
-dynamodb = boto3.resource('dynamodb')
-nome_tabela = os.environ.get('NOME_TABELA')
-table = dynamodb.Table(nome_tabela)
+DYNAMODB = boto3.resource("dynamodb")
+nome_tabela = os.environ.get("NOME_TABELA")
+TABELA = DYNAMODB.Table(nome_tabela)
 
 def edit_item_handler(event, context):
+    try:
+        user_id = event["requestContext"]["authorizer"]["claims"]["sub"]
+    except KeyError:
+        return {
+            "statusCode": 401,
+            "body": json.dumps({"error": "Usuário não autenticado"}),
+    }
     try:
         path_parameters = event.get('pathParameters', {})
         id_item = path_parameters.get('id_item')
@@ -29,7 +36,7 @@ def edit_item_handler(event, context):
             }
 
         # Consulta usando GSI "SK-index"
-        response = table.query(
+        response = TABELA.query(
             IndexName='SK-index',
             KeyConditionExpression=Key('SK').eq(id_item)
         )
@@ -43,7 +50,7 @@ def edit_item_handler(event, context):
         item = items[0]
         pk = item['PK']
 
-        table.update_item(
+        TABELA.update_item(
             Key={
                 'PK': pk,
                 'SK': id_item

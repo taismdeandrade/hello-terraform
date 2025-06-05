@@ -3,14 +3,27 @@ import os
 import boto3
 import uuid
 
-dynamodb = boto3.resource("dynamodb")
+DYNAMODB = boto3.resource("dynamodb")
 nome_tabela = os.environ.get("NOME_TABELA")
-tabela = dynamodb.Table(nome_tabela)
+TABELA = DYNAMODB.Table(nome_tabela)
 
 
 def add_item_handler(event, context):
     try:
-        if not event.get("data") or not event.get("nome"):
+        user_id = event["requestContext"]["authorizer"]["jwt"]["claims"]["sub"]
+    except KeyError:
+        return {
+            "statusCode": 401,
+            "body": json.dumps({"error": f"Usuário não autenticado"}),
+    }
+    try:
+        json_recebido = event.get("body", "{}")
+        request_body = json.loads(json_recebido)
+        
+        date = request_body.get("data")
+        name = request_body.get("nome")
+        
+        if not date or not name:
             return {
                 "statusCode": 400,
                 "body": json.dumps(
@@ -22,15 +35,15 @@ def add_item_handler(event, context):
             }
 
         item_id = str(uuid.uuid4())
-        name = event.get("nome")
-        date = event.get("data")
+        nome = name
+        data = date
 
-        tabela.put_item(
+        TABELA.put_item(
             Item={
-                "PK": f"LIST#{date}",
-                "SK": f"ITEM#{item_id}",
-                "data": date,
-                "nome": name,
+                "PK": f"USER#{user_id}",
+                "SK": f"ITEM#{item_id}LIST#{data}",
+                "data": data,
+                "nome": nome,
                 "status": "todo",
             }
         )
@@ -40,8 +53,8 @@ def add_item_handler(event, context):
             "body": json.dumps(
                 {
                     "mensagem": "Item adicionado com sucesso",
-                    "nome": name,
-                    "data": date,
+                    "nome": nome,
+                    "data": data,
                     "status": "todo",
                 }
             ),
