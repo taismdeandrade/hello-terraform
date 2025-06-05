@@ -28,10 +28,11 @@ def mock_dynamodb_table():
 @pytest.fixture
 def sample_item():
     uid = "test-user-id"
+    data = "2025-12-12"
     return [
         {
             "PK": f"USER#{uid}",
-            "SK": f"ITEM#{uuid.uuid4()}",
+            "SK": f"ITEM#{uuid.uuid4()}LIST#{data}",
             "nome": "buy milk",
             "data": "2025-12-12",
             "status": "todo",

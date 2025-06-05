@@ -3,9 +3,9 @@ import os
 import boto3
 from boto3.dynamodb.conditions import Key
 
-DYNAMODB = boto3.resource("dynamodb")
+dynamodb = boto3.resource("dynamodb")
 nome_tabela = os.environ.get("NOME_TABELA")
-TABELA = DYNAMODB.Table(nome_tabela)
+tabela = dynamodb.Table(nome_tabela)
 
 
 def get_items_handler(event, context):
@@ -19,7 +19,7 @@ def get_items_handler(event, context):
         }
 
     try:
-        response = TABELA.query(
+        response = tabela.query(
             KeyConditionExpression=Key("PK").eq(f"USER#{user_id}")
             & Key("SK").begins_with("ITEM#")
         )

@@ -3,9 +3,9 @@ import os
 import boto3
 import uuid
 
-DYNAMODB = boto3.resource("dynamodb")
+dinamodb = boto3.resource("dynamodb")
 nome_tabela = os.environ.get("NOME_TABELA")
-TABELA = DYNAMODB.Table(nome_tabela)
+tabela = dinamodb.Table(nome_tabela)
 
 
 def add_item_handler(event, context):
@@ -38,7 +38,7 @@ def add_item_handler(event, context):
         nome = name
         data = date
 
-        TABELA.put_item(
+        tabela.put_item(
             Item={
                 "PK": f"USER#{user_id}",
                 "SK": f"ITEM#{item_id}LIST#{data}",

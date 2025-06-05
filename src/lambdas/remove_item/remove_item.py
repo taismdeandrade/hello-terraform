@@ -13,7 +13,7 @@ def remove_item_handler(event, context):
             return {
                 "statusCode": 400,
                 "body": json.dumps(
-                    {"message": "PK e SK são obrigatórios para remover o item"}
+                    {"menssagem": "PK e SK são obrigatórios para remover o item"}
                 ),
             }
 
@@ -29,5 +29,5 @@ def remove_item_handler(event, context):
     except Exception as e:
         return {
             "statusCode": 500,
-            "body": json.dumps({"message": "Erro ao remover o item", "error": str(e)}),
+            "body": json.dumps({"menssagem": "Erro ao remover o item", "erro": str(e)}),
         }

@@ -3,9 +3,9 @@ import os
 import boto3
 from boto3.dynamodb.conditions import Key
 
-DYNAMODB = boto3.resource("dynamodb")
+dynamodb = boto3.resource("dynamodb")
 nome_tabela = os.environ.get("NOME_TABELA")
-TABELA = DYNAMODB.Table(nome_tabela)
+tabela = dynamodb.Table(nome_tabela)
 
 
 def edit_item_handler(event, context):
@@ -39,7 +39,7 @@ def edit_item_handler(event, context):
             }
 
         # Consulta usando GSI "SK-index"
-        response = TABELA.query(
+        response = tabela.query(
             IndexName="SK-index", KeyConditionExpression=Key("SK").eq(id_item)
         )
         items = response.get("Items", [])
@@ -52,7 +52,7 @@ def edit_item_handler(event, context):
         item = items[0]
         pk = item["PK"]
 
-        TABELA.update_item(
+        tabela.update_item(
             Key={"PK": pk, "SK": id_item},
             UpdateExpression="SET nome = :nome, #st = :status",
             ExpressionAttributeValues={":nome": novo_nome, ":status": novo_status},
