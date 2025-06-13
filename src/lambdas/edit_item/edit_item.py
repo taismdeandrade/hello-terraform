@@ -38,9 +38,9 @@ def edit_item_handler(event, context):
                 "body": json.dumps({"mensagem": 'O status deve ser "todo" ou "done"'}),
             }
 
-        # Consulta usando GSI "SK-index"
         response = tabela.query(
-            IndexName="SK-index", KeyConditionExpression=Key("SK").eq(id_item)
+            KeyConditionExpression=Key("PK").eq(f"USER#{user_id}")
+            & Key("SK").eq(id_item),
         )
         items = response.get("Items", [])
         if not items:
