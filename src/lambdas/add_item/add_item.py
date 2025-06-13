@@ -20,10 +20,10 @@ def add_item_handler(event, context):
         json_recebido = event.get("body", "{}")
         request_body = json.loads(json_recebido)
 
-        date = request_body.get("data")
-        name = request_body.get("nome")
+        data = request_body.get("data")
+        nome = request_body.get("nome")
 
-        if not date or not name:
+        if not data or not nome:
             return {
                 "statusCode": 400,
                 "body": json.dumps(
@@ -35,16 +35,14 @@ def add_item_handler(event, context):
             }
 
         item_id = str(uuid.uuid4())
-        nome = name
-        data = date
 
         tabela.put_item(
             Item={
                 "PK": f"USER#{user_id}",
                 "SK": f"ITEM#{item_id}LIST#{data}",
-                "data": data,
-                "nome": nome,
-                "status": "todo",
+                "Nome": nome,
+                "Data": data,
+                "Status": "todo",
             }
         )
 
@@ -53,9 +51,9 @@ def add_item_handler(event, context):
             "body": json.dumps(
                 {
                     "mensagem": "Item adicionado com sucesso",
-                    "nome": nome,
-                    "data": data,
-                    "status": "todo",
+                    "Nome": nome,
+                    "Data": data,
+                    "Status": "todo",
                 }
             ),
         }
